@@ -1,6 +1,6 @@
 # Reminder
 
-This is an application that reminds me of errands by due date
+* This is an application that reminds me of errands by due date
 
 # Dependency
 
