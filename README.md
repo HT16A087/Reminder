@@ -12,6 +12,8 @@
 
 # License
 
+* MIT
+
 # Authors
 
 * I_Touch
