@@ -2,7 +2,7 @@
 
 * This is an application that reminds me of errands by due date
 
-![reminderView](https://github.com/HT16A087/Images/blob/master/reminderView.png)
+<img src="https://github.com/HT16A087/Images/blob/master/reminderView.png" width="">
 
 # Dependency
 
