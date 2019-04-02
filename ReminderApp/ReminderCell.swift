@@ -184,6 +184,7 @@ class ReminderCell: UICollectionViewCell {
         view.layer.insertSublayer(gradLayer, at: 0)
     }
     
+    // Test
     func duedateTextChangeFormat(duedate: String) -> String {
         // 表示したいフォーマットに変換
         let formatter = DateFormatter()
