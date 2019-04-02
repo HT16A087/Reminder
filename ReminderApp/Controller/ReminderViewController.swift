@@ -29,7 +29,6 @@ class ReminderViewController: UICollectionViewController {
     override init(collectionViewLayout layout: UICollectionViewLayout) {
         super.init(collectionViewLayout: layout)
         
-        // Setup collectionView
         setupCollectionViewLayout()
         setupCollectionView()
     }
@@ -46,24 +45,12 @@ class ReminderViewController: UICollectionViewController {
         
         setupNavigationItems()
         
-        // 件数を更新
         updateRemindersCountNotification()
         
         collectionView.reloadData()
     }
     
     // MARK: - UINavigationBar
-    
-    fileprivate func setupNavigationBar() {
-        // NavigationTitleViewImage
-        let layer = CAShapeLayer()
-        let gradLayer = CAGradientLayer()
-        gradLayer.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-        gradLayer.colors = [ UIColor.magenta.cgColor, UIColor.blue.cgColor ]
-        gradLayer.mask = layer
-        naviImageView.layer.addSublayer(gradLayer)
-        navigationItem.titleView = naviImageView
-    }
     
     fileprivate func setupNavigationItems() {
         setupRemainingNavItem()
@@ -79,7 +66,6 @@ class ReminderViewController: UICollectionViewController {
     }
     
     fileprivate func setupLeftNavItem() {
-        // Edit Button
         navigationItem.leftBarButtonItem = editButtonItem
         if reminderData.count() == 0 {
             navigationItem.leftBarButtonItem?.isEnabled = false
@@ -105,7 +91,6 @@ class ReminderViewController: UICollectionViewController {
     
     fileprivate func setupCollectionView() {
         collectionView.backgroundColor = .white
-        //collectionView.contentInsetAdjustmentBehavior = .never
         
         collectionView.register(ReminderHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerId)
         collectionView.register(ReminderCell.self, forCellWithReuseIdentifier: cellId)
@@ -143,14 +128,12 @@ class ReminderViewController: UICollectionViewController {
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let contentOffsetY = scrollView.contentOffset.y
-        
-        // Stop scroll
         if contentOffsetY < 0 {
             scrollView.contentOffset.y = 0
         }
     }
     
-    // MARK: - UINavigationBarButtonItem
+    // MARK: - UINavigationBarItem
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
@@ -174,7 +157,6 @@ class ReminderViewController: UICollectionViewController {
     // MARK: - NSNotification
     
     func updateRemindersCountNotification() {
-        // Reminder の件数を更新
         let center = NotificationCenter.default
         center.post(name: .reminderCountLabelUpdate, object: nil)
     }
@@ -200,13 +182,13 @@ extension ReminderViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - ReminderCell Delegate
+
 extension ReminderViewController: ReminderCellDelegate {
     
     func check(cell: ReminderCell) {
-        // チェック状態を変更
         cell.isChecked = !cell.isChecked
         
-        // Cell の check 状態を保存
         if let indexPath = collectionView?.indexPath(for: cell) {
             let text = reminderData.data(at: indexPath.row)?.text
             let duedate = reminderData.data(at: indexPath.row)?.duedate
@@ -215,17 +197,19 @@ extension ReminderViewController: ReminderCellDelegate {
     }
     
     func delete(cell: ReminderCell) {
-        // Cell の削除
         if let indexPath = collectionView?.indexPath(for: cell) {
             reminderData.deleteData(at: indexPath.row)
             collectionView?.deleteItems(at: [indexPath])
         }
         
-        // 件数の更新
         updateRemindersCountNotification()
         
         if reminderData.count() == 0 {
             cell.isEditing = false
+            
+            UIView.animate(withDuration: 0.5) {
+                self.collectionView.reloadEmptyDataSet()
+            }
         }
     }
 }
@@ -239,7 +223,7 @@ extension ReminderViewController: DZNEmptyDataSetSource {
     }
     
     func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
-        let text = "Not data"
+        let text = "No Reminders"
         return NSAttributedString(string: text, attributes: nil)
     }
 }
@@ -247,5 +231,6 @@ extension ReminderViewController: DZNEmptyDataSetSource {
 // MARK: - DANEmpty DataSetDelegate
 
 extension ReminderViewController: DZNEmptyDataSetDelegate {
+    
     
 }
