@@ -44,9 +44,7 @@ class ReminderViewController: UICollectionViewController {
         reminderData = ReminderData()
         reminderData.loadData()
         
-        // Setup NavigationBar
-        setupNavigationBar()
-        setupNavigationItem()
+        setupNavigationItems()
         
         // 件数を更新
         updateRemindersCountNotification()
@@ -67,7 +65,20 @@ class ReminderViewController: UICollectionViewController {
         navigationItem.titleView = naviImageView
     }
     
-    fileprivate func setupNavigationItem() {
+    fileprivate func setupNavigationItems() {
+        setupRemainingNavItem()
+        setupLeftNavItem()
+        setupRightNavItem()
+    }
+    
+    fileprivate func setupRemainingNavItem() {
+        navigationItem.titleView = naviImageView
+        
+        navigationController?.navigationBar.backgroundColor = .white
+        navigationController?.navigationBar.isTranslucent = false
+    }
+    
+    fileprivate func setupLeftNavItem() {
         // Edit Button
         navigationItem.leftBarButtonItem = editButtonItem
         if reminderData.count() == 0 {
@@ -75,8 +86,9 @@ class ReminderViewController: UICollectionViewController {
         } else {
             navigationItem.leftBarButtonItem?.isEnabled = true
         }
-        
-        // Add Button
+    }
+    
+    fileprivate func setupRightNavItem() {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonDidTap(sender:)))
         navigationItem.rightBarButtonItem = addButton
     }
@@ -143,8 +155,8 @@ class ReminderViewController: UICollectionViewController {
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         // 利用不可に設定
-        navigationItem.rightBarButtonItem?.isEnabled = !editing
         collectionView.allowsSelection = !editing
+        navigationItem.rightBarButtonItem?.isEnabled = !editing
         if reminderData.count() == 0 {
             navigationItem.leftBarButtonItem?.isEnabled = false
         }
@@ -211,6 +223,10 @@ extension ReminderViewController: ReminderCellDelegate {
         
         // 件数の更新
         updateRemindersCountNotification()
+        
+        if reminderData.count() == 0 {
+            cell.isEditing = false
+        }
     }
 }
 

@@ -21,7 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
         let homeController = ReminderViewController(collectionViewLayout: UICollectionViewFlowLayout())
         let navigationController = UINavigationController(rootViewController: homeController)
-        navigationController.navigationBar.isTranslucent = false
         window?.rootViewController = navigationController
         
         return true

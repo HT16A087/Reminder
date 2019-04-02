@@ -115,6 +115,33 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		840CA0E92253FFE60075C6CB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				84CA447F225106400041D2F0 /* ReminderHeaderView.swift */,
+				84CA447D225105F70041D2F0 /* ReminderCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		840CA0EA2253FFFF0075C6CB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				84CA447B225105B40041D2F0 /* Reminder.swift */,
+				84CA448D2251C0E90041D2F0 /* ReminderData.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		840CA0EB225400070075C6CB /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				84CA4479225105900041D2F0 /* ReminderViewController.swift */,
+				84CA448B2251260F0041D2F0 /* AddReminderViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
 		84CA443F225105200041D2F0 = {
 			isa = PBXGroup;
 			children = (
@@ -142,13 +169,10 @@
 			children = (
 				84CA448F2251D2A90041D2F0 /* ReminderApp.entitlements */,
 				84CA449622529BCF0041D2F0 /* Splash */,
+				840CA0E92253FFE60075C6CB /* View */,
+				840CA0EA2253FFFF0075C6CB /* Model */,
+				840CA0EB225400070075C6CB /* Controller */,
 				84CA444B225105200041D2F0 /* AppDelegate.swift */,
-				84CA447B225105B40041D2F0 /* Reminder.swift */,
-				84CA448D2251C0E90041D2F0 /* ReminderData.swift */,
-				84CA4479225105900041D2F0 /* ReminderViewController.swift */,
-				84CA447F225106400041D2F0 /* ReminderHeaderView.swift */,
-				84CA447D225105F70041D2F0 /* ReminderCell.swift */,
-				84CA448B2251260F0041D2F0 /* AddReminderViewController.swift */,
 				84CA4452225105220041D2F0 /* Assets.xcassets */,
 				84CA4457225105220041D2F0 /* Info.plist */,
 				840CA0E72252A32A0075C6CB /* LaunchScreen.storyboard */,
