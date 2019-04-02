@@ -4,12 +4,16 @@
 
 # Dependency
 
-# Setup
+* MacOS
+* Xcode 10.2
+* Swift 4.2
 
-# Usage
+# Setup
 
 # License
 
 # Authors
+
+* I_Touch
 
 # References
