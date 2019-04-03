@@ -259,7 +259,6 @@ class AddReminderViewController: UIViewController {
             hideDueDateBox()
         }
         
-        // 通知確認
         notificationConfirmation()
     }
     
