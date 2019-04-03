@@ -40,14 +40,11 @@ class ReminderViewController: UICollectionViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        reminderData = ReminderData()
-        reminderData.loadData()
-        
-        setupNavigationItems()
+        collectionViewReloadData()
         
         updateRemindersCountNotification()
         
-        collectionView.reloadData()
+        setupNavigationItems()
     }
     
     // MARK: - UINavigationBar
@@ -97,6 +94,12 @@ class ReminderViewController: UICollectionViewController {
         
         collectionView.emptyDataSetDelegate = self
         collectionView.emptyDataSetSource = self
+    }
+    
+    fileprivate func collectionViewReloadData() {
+        reminderData = ReminderData()
+        reminderData.loadData()
+        collectionView.reloadData()
     }
     
     // MARK: - UICollectionReusableView
@@ -204,15 +207,15 @@ extension ReminderViewController: ReminderCellDelegate {
             collectionView?.deleteItems(at: [indexPath])
         }
         
-        updateRemindersCountNotification()
-        
         if reminderData.count() == 0 {
-            cell.isEditing = false
-            
             UIView.animate(withDuration: 0.5) {
                 self.collectionView.reloadEmptyDataSet()
             }
         }
+        
+        cell.isEditing = false
+        
+        updateRemindersCountNotification()
     }
 }
 

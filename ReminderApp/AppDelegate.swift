@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -34,6 +35,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        
+        let trigger: UNNotificationTrigger
+        let content = UNMutableNotificationContent()
+        var notificationTime = DateComponents()
+        
+        notificationTime.hour = 20
+        notificationTime.minute = 35
+        trigger = UNCalendarNotificationTrigger(dateMatching: notificationTime, repeats: false)
+        
+        content.title = ""
+        content.body = "TEST TEST TEST"
+        content.sound = UNNotificationSound.default
+        
+        let request = UNNotificationRequest(identifier: "uuid", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {

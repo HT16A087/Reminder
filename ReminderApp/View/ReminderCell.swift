@@ -21,9 +21,7 @@ class ReminderCell: UICollectionViewCell {
         didSet {
             guard let reminder = dataSourceItem as? Reminder else { return }
             taskLabel.text = reminder.text
-            
-            let dueText = duedateTextChangeFormat(duedate: reminder.duedate)
-            duedateLabel.text = dueText
+            duedateLabel.text = setDueDateText(reminder.duedate)
         }
     }
     
@@ -172,6 +170,43 @@ class ReminderCell: UICollectionViewCell {
         self.layer.shadowRadius = 4.0
     }
     
+    func setDueDateText(_ dudate: String) -> String {
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        let dueDate: Date = formatter.date(from: dudate)!
+        
+        let date: String = getDate(dudate: dueDate)
+        let time: String = getTime(dudate: dueDate)
+        let duedateText = date + "\n" + time
+        return duedateText
+    }
+    
+    func getDate(dudate: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+        
+        let date = formatter.string(from: dudate)
+        return date
+    }
+    
+    func getTime(dudate: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        
+        let time: String = formatter.string(from: dudate)
+        return time
+    }
+    
     // MARK: - CAGradientLayer
     
     func setGradation(view: UIView) {
@@ -182,23 +217,6 @@ class ReminderCell: UICollectionViewCell {
         gradLayer.endPoint = CGPoint(x: 1, y: 0.5)
         gradLayer.cornerRadius = 1.0
         view.layer.insertSublayer(gradLayer, at: 0)
-    }
-    
-    // Test
-    func duedateTextChangeFormat(duedate: String) -> String {
-        // 表示したいフォーマットに変換
-        let formatter = DateFormatter()
-        formatter.locale = NSLocale.init(localeIdentifier: "en-US") as Locale
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        let dueDate: Date = formatter.date(from: duedate)!
-        formatter.doesRelativeDateFormatting = true
-        let dueStr: String = formatter.string(from: dueDate)
-        let separatedStringArray = dueStr.components(separatedBy: .whitespaces)
-        print(separatedStringArray[0])
-        print(separatedStringArray[2] + separatedStringArray[3])
-        let A = separatedStringArray[0] + "\n" + separatedStringArray[2] + " " + separatedStringArray[3]        
-        return A
     }
     
     func checkCell() {

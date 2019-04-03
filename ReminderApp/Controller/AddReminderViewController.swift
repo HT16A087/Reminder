@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 class AddReminderViewController: UIViewController {
     
@@ -100,7 +101,8 @@ class AddReminderViewController: UIViewController {
         let button = UIButton()
         let now = Date()
         let formatter = DateFormatter()
-        formatter.locale = NSLocale.init(localeIdentifier: "en-US") as Locale
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         button.setTitle(formatter.string(from: now), for: .normal)
@@ -137,9 +139,15 @@ class AddReminderViewController: UIViewController {
         
         view.backgroundColor = UIColor.white
         
-        // Setup navigaitonbar
-        setupNavigationBar()
-        
+        setupNavigationItems()
+        setupViews()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    fileprivate func setupViews() {
         view.addSubview(headerLabel)
         view.addSubview(box1)
         view.addSubview(box2)
@@ -179,23 +187,20 @@ class AddReminderViewController: UIViewController {
         remindSwitch.bottomAnchor.constraint(equalTo: box2.bottomAnchor, constant: -16).isActive = true
     }
     
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    fileprivate func setupNavigationItems() {
+        setupRightNavItem()
     }
     
-    func setupNavigationBar() {
+    fileprivate func setupRightNavItem() {
         let saveButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonDidTap(sender:)))
         navigationItem.rightBarButtonItem = saveButton
     }
     
     func indicateDueDateBox() {
-        self.view.addSubview(box3)
+        view.addSubview(box3)
         box3.addSubview(duedateLabel)
         box3.addSubview(duedateButton)
         
-        box3.alpha = 0.0
-        
-        // Constraints
         box3.topAnchor.constraint(equalTo: box2.bottomAnchor, constant: 20).isActive = true
         box3.leftAnchor.constraint(equalTo: box2.leftAnchor).isActive = true
         box3.rightAnchor.constraint(equalTo: box2.rightAnchor).isActive = true
@@ -209,7 +214,7 @@ class AddReminderViewController: UIViewController {
         duedateButton.rightAnchor.constraint(equalTo: box3.rightAnchor, constant: -16).isActive = true
         duedateButton.bottomAnchor.constraint(equalTo: duedateLabel.bottomAnchor).isActive = true
         
-        // Start animation
+        box3.alpha = 0.0
         UIView.animate(withDuration: 0.3) {
             self.box3.alpha = 1.0
         }
@@ -233,7 +238,6 @@ class AddReminderViewController: UIViewController {
     // MARK: - NavigationBarButtonItem Handling
     
     @objc func saveButtonDidTap(sender: Any) {
-        // Save data
         if remindTextField.text != "" {
             reminderData = ReminderData()
             let text = remindTextField.text
@@ -253,6 +257,17 @@ class AddReminderViewController: UIViewController {
         } else {
             resetDueDateButton()
             hideDueDateBox()
+        }
+        
+        // 通知確認
+        notificationConfirmation()
+    }
+    
+    func notificationConfirmation() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) {
+            (granted, error) in
+            // エラー処理
         }
     }
     
@@ -275,10 +290,11 @@ class AddReminderViewController: UIViewController {
     
     @objc func didValueChangedDatePicker(sender: UIDatePicker) {
         let formatter = DateFormatter()
-        formatter.locale = NSLocale.init(localeIdentifier: "en-US") as Locale
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        formatter.doesRelativeDateFormatting = true // 表記変換 今日(2019/04/01) = Today
+        
         let selectedDate = formatter.string(from: sender.date)
         duedateButton.titleLabel?.text = selectedDate
         duedateButton.setTitle(selectedDate, for: .normal)
