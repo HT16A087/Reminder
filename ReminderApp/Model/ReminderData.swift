@@ -16,8 +16,6 @@ class ReminderData {
     
     private var reminders = [Reminder]()
     
-    // MARK: - UserDefaults
-    
     func loadData() {
         let defaults = UserDefaults(suiteName: groupId)
         let reminderDics = defaults?.object(forKey: groupKey) as? [[String: Any]]
@@ -67,10 +65,14 @@ class ReminderData {
         defaults?.set(reminderDics, forKey: groupKey)
     }
     
-    // MARK: - UICollectionView DataSource
-    
     func count() -> Int {
         return reminders.count
+    }
+    
+    func unCheckedCount() -> Int {
+        let filter = reminders.filter({$0.check == false})
+        let uncheckedCount = filter.count
+        return uncheckedCount
     }
     
     func data(at index: Int) -> Reminder? {

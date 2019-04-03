@@ -194,6 +194,8 @@ extension ReminderViewController: ReminderCellDelegate {
             let duedate = reminderData.data(at: indexPath.row)?.duedate
             reminderData.editData(reminder: Reminder(text: text!, duedate: duedate!, check: cell.isChecked), at: indexPath.row)
         }
+        
+        updateRemindersCountNotification()
     }
     
     func delete(cell: ReminderCell) {
@@ -230,7 +232,4 @@ extension ReminderViewController: DZNEmptyDataSetSource {
 
 // MARK: - DANEmpty DataSetDelegate
 
-extension ReminderViewController: DZNEmptyDataSetDelegate {
-    
-    
-}
+extension ReminderViewController: DZNEmptyDataSetDelegate {}

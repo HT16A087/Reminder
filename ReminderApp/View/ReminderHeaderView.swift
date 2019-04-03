@@ -10,6 +10,8 @@ import UIKit
 
 class ReminderHeaderView: UICollectionReusableView {
     
+    fileprivate var reminderData: ReminderData!
+    
     fileprivate let headerLabel: UILabel = {
         let label = UILabel()
         label.text = "Reminders"
@@ -29,14 +31,23 @@ class ReminderHeaderView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        print("init")
+        
         backgroundColor = .white
         
+        setupViews()
+        setupReminderCountLabel()
+        
+        setupNotification()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupViews() {
         addSubview(headerLabel)
         addSubview(reminderCountLabel)
-        
-        // Reminder の件数を表示
-        let reminderCountStr: String = String(reminderCount())
-        reminderCountLabel.text = reminderCountStr + "件" // 0件
         
         // Constraints
         headerLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 17).isActive = true
@@ -46,29 +57,29 @@ class ReminderHeaderView: UICollectionReusableView {
         reminderCountLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 17).isActive = true
         reminderCountLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16).isActive = true
         reminderCountLabel.bottomAnchor.constraint(equalTo: headerLabel.bottomAnchor).isActive = true
-        
-        // Setup Notification
+    }
+    
+    func setupReminderCountLabel() {
+        uncheckedReminderCount()
+    }
+    
+    func setupNotification() {
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(reminderCountLabelUpdate(notification:)), name: .reminderCountLabelUpdate, object: nil)
     }
     
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func reminderCount() -> Int {
-        // Reminder の件数を取得
-        let reminderData = ReminderData()
+    func uncheckedReminderCount() {
+        reminderData = ReminderData()
         reminderData.loadData()
-        return reminderData.count()
+        let uncheckedCount = reminderData.unCheckedCount()
+        let uncheckedCountStr = String(uncheckedCount)
+        reminderCountLabel.text = uncheckedCountStr + "件"
     }
     
     // MARK: - NSNotification
     
     @objc func reminderCountLabelUpdate(notification: NSNotification) {
-        // Reminder の件数を表示
-        let reminderCountStr: String = String(reminderCount())
-        reminderCountLabel.text = reminderCountStr + "件" // 0件
+        uncheckedReminderCount()
     }
 }
 
