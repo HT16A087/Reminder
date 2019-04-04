@@ -279,7 +279,6 @@ class AddReminderViewController: UIViewController {
     // MARK: - DueDate Button And Picker Handling
     
     @objc func duedateButtonDidTap(sender: Any) {
-        
         remindTextField.resignFirstResponder()
         
         self.view.addSubview(duedatePicker)
