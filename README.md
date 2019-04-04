@@ -10,6 +10,9 @@
 * MacOS
 * Xcode 10.2
 * Swift 4.2
+* CocoaPods
+  * DZNEmptyDataSet⬇
+  * https://github.com/dzenbot/DZNEmptyDataSet.git
 
 # License
 
@@ -20,7 +23,3 @@
 * I_Touch
 
 # References
-
-* CocoaPods
-  * DZNEmptyDataSet⬇
-  * https://github.com/dzenbot/DZNEmptyDataSet.git
