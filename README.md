@@ -22,4 +22,4 @@
 # References
 
 * CocoaPods
-  * DZNEmptyDataSet
+  * DZNEmptyDataSet [https://github.com/dzenbot/DZNEmptyDataSet.git]
