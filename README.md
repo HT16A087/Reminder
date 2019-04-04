@@ -22,4 +22,4 @@
 # References
 
 * CocoaPods
-  * DZNE
+  * DZNEmptyDataSet
