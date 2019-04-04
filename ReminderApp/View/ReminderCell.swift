@@ -98,6 +98,11 @@ class ReminderCell: UICollectionViewCell {
         return view
     }()
     
+    fileprivate let dateFormat: DateFormatter = {
+        let formatter = DateFormatter()
+        return formatter
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         

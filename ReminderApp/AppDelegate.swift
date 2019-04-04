@@ -76,6 +76,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
         }
     }
-
 }
-

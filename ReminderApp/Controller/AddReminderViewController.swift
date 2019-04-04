@@ -196,6 +196,10 @@ class AddReminderViewController: UIViewController {
         navigationItem.rightBarButtonItem = saveButton
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        remindTextField.resignFirstResponder()
+    }
+    
     func indicateDueDateBox() {
         view.addSubview(box3)
         box3.addSubview(duedateLabel)
@@ -235,6 +239,16 @@ class AddReminderViewController: UIViewController {
         }
     }
     
+    // MARK: - Notification
+    
+    func notificationConfirmation() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) {
+            (granted, error) in
+            // エラー処理
+        }
+    }
+    
     // MARK: - NavigationBarButtonItem Handling
     
     @objc func saveButtonDidTap(sender: Any) {
@@ -262,21 +276,16 @@ class AddReminderViewController: UIViewController {
         notificationConfirmation()
     }
     
-    func notificationConfirmation() {
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound, .badge]) {
-            (granted, error) in
-            // エラー処理
-        }
-    }
-    
     // MARK: - DueDate Button And Picker Handling
     
     @objc func duedateButtonDidTap(sender: Any) {
         remindTextField.resignFirstResponder()
         
         self.view.addSubview(duedatePicker)
-        duedatePicker.topAnchor.constraint(equalTo: box3.bottomAnchor, constant: 10).isActive = true
+        duedatePicker.topAnchor.constraint(equalTo: box3.bottomAnchor, constant: 20).isActive = true
+        duedatePicker.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
+        duedatePicker.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16).isActive = true
+        
         duedateButton.setTitleColor(#colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1), for: .normal)
         duedateButton.isEnabled = false
         duedatePicker.alpha = 0.0
