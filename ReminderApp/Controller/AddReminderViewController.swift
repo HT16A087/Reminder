@@ -100,11 +100,13 @@ class AddReminderViewController: UIViewController {
     fileprivate let duedateButton: UIButton = {
         let button = UIButton()
         let now = Date()
+        // 外部で呼び出すかも
         let formatter = DateFormatter()
         formatter.timeZone = NSTimeZone.local
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
+        
         button.setTitle(formatter.string(from: now), for: .normal)
         button.setTitleColor(UIColor.lightGray, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
@@ -297,6 +299,7 @@ class AddReminderViewController: UIViewController {
     }
     
     @objc func didValueChangedDatePicker(sender: UIDatePicker) {
+        // 上で宣言してよだすかも
         let formatter = DateFormatter()
         formatter.timeZone = NSTimeZone.local
         formatter.locale = Locale(identifier: "en_US_POSIX")

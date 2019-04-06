@@ -100,6 +100,10 @@ class ReminderCell: UICollectionViewCell {
     
     fileprivate let dateFormat: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+//        formatter.dateStyle = .medium
+//        formatter.timeStyle = .short
         return formatter
     }()
     
@@ -108,13 +112,9 @@ class ReminderCell: UICollectionViewCell {
         
         self.backgroundColor = .white
         
-        // Setup subviews
         setupViews()
-        
-        // Setup layout
         setupLayer()
         
-        // Setup button action
         checkButton.addTarget(self, action: #selector(checkButtonDidTap(sender:)), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteButtonDidTap(sender:)), for: .touchUpInside)
     }
@@ -176,12 +176,10 @@ class ReminderCell: UICollectionViewCell {
     }
     
     func setDueDateText(_ dudate: String) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        let dueDate: Date = formatter.date(from: dudate)!
+        dateFormat.dateStyle = .medium
+        dateFormat.timeStyle = .short
+        
+        let dueDate: Date = dateFormat.date(from: dudate)!
         
         let date: String = getDate(dudate: dueDate)
         let time: String = getTime(dudate: dueDate)
@@ -190,25 +188,25 @@ class ReminderCell: UICollectionViewCell {
     }
     
     func getDate(dudate: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        formatter.doesRelativeDateFormatting = true
+
+//        let formatter = DateFormatter()
+//        formatter.timeZone = NSTimeZone.local
+//        formatter.locale = Locale(identifier: "en_US_POSIX")
+//        formatter.dateStyle = .medium
+//        formatter.timeStyle = .none
+//        formatter.doesRelativeDateFormatting = true
         
-        let date = formatter.string(from: dudate)
+        dateFormat.timeStyle = .none
+        dateFormat.doesRelativeDateFormatting = true
+        
+        let date = dateFormat.string(from: dudate)
         return date
     }
     
     func getTime(dudate: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
+        dateFormat.dateStyle = .none
         
-        let time: String = formatter.string(from: dudate)
+        let time: String = dateFormat.string(from: dudate)
         return time
     }
     
