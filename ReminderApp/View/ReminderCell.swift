@@ -21,7 +21,7 @@ class ReminderCell: UICollectionViewCell {
         didSet {
             guard let reminder = dataSourceItem as? Reminder else { return }
             taskLabel.text = reminder.text
-            duedateLabel.text = setDueDateText(reminder.duedate)
+            duedateLabel.text = setDueDateText(dueDate: reminder.duedate)
         }
     }
     
@@ -70,23 +70,19 @@ class ReminderCell: UICollectionViewCell {
     
     fileprivate let taskLabel: UILabel = {
         let label = UILabel()
-        label.text = "Test Test Test"
         label.font = UIFont.systemFont(ofSize: 20.0)
-        label.lineBreakMode = .byWordWrapping
+        label.lineBreakMode = .byTruncatingTail//.byWordWrapping
         label.numberOfLines = 1
-        //label.backgroundColor = UIColor.red
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     fileprivate let duedateLabel: UILabel = {
         let label = UILabel()
-        label.text = "Test Test Test"
         label.font = UIFont.systemFont(ofSize: 10.0)
         label.textAlignment = .right
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 2
-        //label.backgroundColor = UIColor.blue
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -98,12 +94,12 @@ class ReminderCell: UICollectionViewCell {
         return view
     }()
     
-    fileprivate let dateFormat: DateFormatter = {
+    fileprivate let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.timeZone = NSTimeZone.local
         formatter.locale = Locale(identifier: "en_US_POSIX")
-//        formatter.dateStyle = .medium
-//        formatter.timeStyle = .short
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
         return formatter
     }()
     
@@ -154,65 +150,71 @@ class ReminderCell: UICollectionViewCell {
         taskLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -16).isActive = true
         
         duedateLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 16).isActive = true
+        duedateLabel.leftAnchor.constraint(equalTo: taskLabel.rightAnchor, constant: 8).isActive = true
         duedateLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16).isActive = true
         duedateLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -16).isActive = true
+        duedateLabel.widthAnchor.constraint(equalToConstant: 65).isActive = true
         
         gradView.topAnchor.constraint(equalTo: self.topAnchor, constant: -3).isActive = true
         gradView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 0).isActive = true
     }
     
     func setupLayer() {
-        // グラデーション
-        setGradation(view: gradView)
+        setGradationLayer(view: gradView)
         
-        // 角丸
         self.layer.cornerRadius = 3.0
-        
-        // 影
         self.layer.shadowColor = UIColor.black.cgColor
         self.layer.shadowOffset = CGSize(width: 0, height: 3.0)
         self.layer.shadowOpacity = 0.2
         self.layer.shadowRadius = 4.0
     }
     
-    func setDueDateText(_ dudate: String) -> String {
-        dateFormat.dateStyle = .medium
-        dateFormat.timeStyle = .short
-        
-        let dueDate: Date = dateFormat.date(from: dudate)!
-        
-        let date: String = getDate(dudate: dueDate)
-        let time: String = getTime(dudate: dueDate)
-        let duedateText = date + "\n" + time
-        return duedateText
+    func setDueDateText(dueDate: String) -> String {
+        if dueDate != "" {
+            let _dueDate = comvertStringToDate(dueDate: dueDate)
+            
+            let date: String = setDate(dueDate: _dueDate)
+            let time: String = setTime(dueDate: _dueDate)
+            
+            let dueDateStr = date + "\n" + time
+            return dueDateStr
+        } else {
+            return ""
+        }
     }
     
-    func getDate(dudate: Date) -> String {
-
-//        let formatter = DateFormatter()
-//        formatter.timeZone = NSTimeZone.local
-//        formatter.locale = Locale(identifier: "en_US_POSIX")
-//        formatter.dateStyle = .medium
-//        formatter.timeStyle = .none
-//        formatter.doesRelativeDateFormatting = true
+    func comvertStringToDate(dueDate: String) -> Date {
+        // Date to string
+        // ??? 関数内で DateFormatter のインスタンスを生成しないとエラーが発生
+        let convertFormatter = DateFormatter()
+        convertFormatter.timeZone = NSTimeZone.local
+        convertFormatter.locale = Locale(identifier: "en_US_POSIX")
+        convertFormatter.dateStyle = .medium
+        convertFormatter.timeStyle = .short
+        let dateStr = convertFormatter.date(from: dueDate)!
+        return dateStr
+    }
+    
+    func setDate(dueDate: Date) -> String {
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+        dateFormatter.doesRelativeDateFormatting = true
         
-        dateFormat.timeStyle = .none
-        dateFormat.doesRelativeDateFormatting = true
-        
-        let date = dateFormat.string(from: dudate)
+        let date = dateFormatter.string(from: dueDate)
         return date
     }
     
-    func getTime(dudate: Date) -> String {
-        dateFormat.dateStyle = .none
+    func setTime(dueDate: Date) -> String {
+        dateFormatter.dateStyle = .none
+        dateFormatter.timeStyle = .short
         
-        let time: String = dateFormat.string(from: dudate)
+        let time = dateFormatter.string(from: dueDate)
         return time
     }
     
     // MARK: - CAGradientLayer
     
-    func setGradation(view: UIView) {
+    func setGradationLayer(view: UIView) {
         let gradLayer = CAGradientLayer()
         gradLayer.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: 3)
         gradLayer.colors = [ UIColor.magenta.cgColor, UIColor.blue.cgColor ]

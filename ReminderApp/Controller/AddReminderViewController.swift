@@ -11,8 +11,8 @@ import UserNotifications
 
 class AddReminderViewController: UIViewController {
     
-    var text: String?
-    var duedate: String?
+//    var text: String?
+//    var duedate: String?
     
     fileprivate var reminderData: ReminderData!
     
@@ -100,13 +100,11 @@ class AddReminderViewController: UIViewController {
     fileprivate let duedateButton: UIButton = {
         let button = UIButton()
         let now = Date()
-        // 外部で呼び出すかも
         let formatter = DateFormatter()
         formatter.timeZone = NSTimeZone.local
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        
         button.setTitle(formatter.string(from: now), for: .normal)
         button.setTitleColor(UIColor.lightGray, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
@@ -120,10 +118,19 @@ class AddReminderViewController: UIViewController {
         let picker = UIDatePicker()
         picker.datePickerMode = .dateAndTime
         picker.timeZone = NSTimeZone.local
-        picker.locale = Locale.current
+        picker.locale = Locale(identifier: "en_US_POSIX")
         picker.addTarget(self, action: #selector(didValueChangedDatePicker(sender:)), for: .valueChanged)
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
+    }()
+    
+    fileprivate let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone.local
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
     }()
     
     fileprivate let kbToolBar: UIToolbar = {
@@ -141,8 +148,13 @@ class AddReminderViewController: UIViewController {
         
         view.backgroundColor = UIColor.white
         
+        reminderData = ReminderData()
+        reminderData.loadData()
+        
         setupNavigationItems()
         setupViews()
+        
+        remindTextField.inputAccessoryView = kbToolBar
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -158,9 +170,6 @@ class AddReminderViewController: UIViewController {
         box2.addSubview(remindLabel)
         box2.addSubview(remindSwitch)
         
-        remindTextField.inputAccessoryView = kbToolBar
-        
-        // Constraints
         headerLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
         headerLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
         
@@ -235,6 +244,7 @@ class AddReminderViewController: UIViewController {
     func resetDueDateButton() {
         duedateButton.setTitleColor(UIColor.lightGray, for: .normal)
         duedateButton.isEnabled = true
+        
         UIView.animate(withDuration: 0.3) {
             self.duedatePicker.alpha = 0.0
             self.view.willRemoveSubview(self.duedatePicker)
@@ -255,11 +265,14 @@ class AddReminderViewController: UIViewController {
     
     @objc func saveButtonDidTap(sender: Any) {
         if remindTextField.text != "" {
-            reminderData = ReminderData()
             let text = remindTextField.text
             let duedate = duedateButton.currentTitle
-            reminderData.loadData()
-            reminderData.saveData(reminder: Reminder(text: text!, duedate: duedate!, check: false))
+            
+            if remindSwitch.isOn == true {
+                reminderData.saveData(reminder: Reminder(text: text!, duedate: duedate!, check: false))
+            } else {
+                reminderData.saveData(reminder: Reminder(text: text!, duedate: "", check: false))
+            }
         }
         
         navigationController?.popViewController(animated: true)
@@ -283,7 +296,7 @@ class AddReminderViewController: UIViewController {
     @objc func duedateButtonDidTap(sender: Any) {
         remindTextField.resignFirstResponder()
         
-        self.view.addSubview(duedatePicker)
+        view.addSubview(duedatePicker)
         duedatePicker.topAnchor.constraint(equalTo: box3.bottomAnchor, constant: 20).isActive = true
         duedatePicker.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
         duedatePicker.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16).isActive = true
@@ -292,6 +305,7 @@ class AddReminderViewController: UIViewController {
         duedateButton.isEnabled = false
         duedatePicker.alpha = 0.0
         duedatePicker.frame.origin.y = box3.frame.maxY
+        
         UIView.animate(withDuration: 0.3) {
             self.duedatePicker.alpha = 1.0
             self.duedatePicker.frame.origin.y += 50
@@ -299,16 +313,9 @@ class AddReminderViewController: UIViewController {
     }
     
     @objc func didValueChangedDatePicker(sender: UIDatePicker) {
-        // 上で宣言してよだすかも
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        
-        let selectedDate = formatter.string(from: sender.date)
-        duedateButton.titleLabel?.text = selectedDate
+        let selectedDate = dateFormatter.string(from: sender.date)
         duedateButton.setTitle(selectedDate, for: .normal)
+        //duedateButton.titleLabel?.text = selectedDate
     }
     
     // MARK: - Keyboard Handling
