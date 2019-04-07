@@ -96,8 +96,8 @@ class ReminderCell: UICollectionViewCell {
     
     fileprivate let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
+//        formatter.timeZone = NSTimeZone.local
+//        formatter.locale = Locale.current//Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter
@@ -187,8 +187,6 @@ class ReminderCell: UICollectionViewCell {
         // Date to string
         // ??? 関数内で DateFormatter のインスタンスを生成しないとエラーが発生
         let convertFormatter = DateFormatter()
-        convertFormatter.timeZone = NSTimeZone.local
-        convertFormatter.locale = Locale(identifier: "en_US_POSIX")
         convertFormatter.dateStyle = .medium
         convertFormatter.timeStyle = .short
         let dateStr = convertFormatter.date(from: dueDate)!

@@ -101,8 +101,6 @@ class AddReminderViewController: UIViewController {
         let button = UIButton()
         let now = Date()
         let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         button.setTitle(formatter.string(from: now), for: .normal)
@@ -117,8 +115,6 @@ class AddReminderViewController: UIViewController {
     fileprivate let duedatePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .dateAndTime
-        picker.timeZone = NSTimeZone.local
-        picker.locale = Locale(identifier: "en_US_POSIX")
         picker.addTarget(self, action: #selector(didValueChangedDatePicker(sender:)), for: .valueChanged)
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
@@ -126,8 +122,6 @@ class AddReminderViewController: UIViewController {
     
     fileprivate let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter
@@ -268,6 +262,8 @@ class AddReminderViewController: UIViewController {
             let text = remindTextField.text
             let duedate = duedateButton.currentTitle
             
+            print(duedate!)
+            
             if remindSwitch.isOn == true {
                 reminderData.saveData(reminder: Reminder(text: text!, duedate: duedate!, check: false))
             } else {
@@ -315,7 +311,6 @@ class AddReminderViewController: UIViewController {
     @objc func didValueChangedDatePicker(sender: UIDatePicker) {
         let selectedDate = dateFormatter.string(from: sender.date)
         duedateButton.setTitle(selectedDate, for: .normal)
-        //duedateButton.titleLabel?.text = selectedDate
     }
     
     // MARK: - Keyboard Handling

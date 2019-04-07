@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
     }
     
-    fileprivate var dateArray = [Date]()
+    fileprivate var duedateArray = [(text: String, duedate: Date)]()
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
@@ -45,17 +45,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // 通知時間を管理する配列の設定
         setupDateArray()
+        print(duedateArray)
         
         // 通知の設定
         setupNotification()
     }
     
     func setupNotification() {
-        
         var notificationTime = DateComponents()
         
-        for i in 0 ..< dateArray.count {
-            let dueDate = dateArray[i]
+        for i in 0 ..< duedateArray.count {
+            let dueDate = duedateArray[i].duedate
             let components = Calendar.current.dateComponents(in: TimeZone.current, from: dueDate)
             
             notificationTime.year = components.year
@@ -67,7 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let identifier: String = String(i)
             
             let content = UNMutableNotificationContent()
-            content.title = reminderData.data(at: i)!.text
+            content.title = duedateArray[i].text
             content.sound = UNNotificationSound.default
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: notificationTime, repeats: false)
@@ -75,27 +75,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             
             UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-            
         }
     }
     
     func setupDateArray() {
         for i in 0 ..< reminderData.count() {
-            let dueDate = reminderData.data(at: i)?.duedate
-            setDateArrayData(dueDate: dueDate!)
+            setDateArrayData(reminder: reminderData.data(at: i)!)
         }
     }
     
-    func setDateArrayData(dueDate: String) {
+    func setDateArrayData(reminder: Reminder) {
         let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone.local
-        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         
-        if dueDate != "" {
-            let date = formatter.date(from: dueDate)
-            dateArray.append(date!)
+        if reminder.duedate != "" {
+            let text = reminder.text
+            let duedate = formatter.date(from: reminder.duedate)
+            duedateArray.append((text: text, duedate: duedate!))
         }
     }
     
