@@ -75,7 +75,8 @@ class ReminderViewController: UICollectionViewController, UICollectionViewDelega
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ReminderCell
-        cell.dataSorceItem = reminderData.data(at: indexPath.row) 
+        cell.dataSorceItem = reminderData.data(at: indexPath.row)
+        cell.isEditing = false
         cell.isChecked = reminderData.checkData(at: indexPath.row)!
         cell.delegate = self
         return cell
@@ -112,6 +113,12 @@ class ReminderViewController: UICollectionViewController, UICollectionViewDelega
         setupNavigationItems()
         collectionView.reloadData()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        collectionView.flashScrollIndicators()
+    }
 }
 
 extension ReminderViewController {
@@ -147,8 +154,6 @@ extension ReminderViewController {
         navigationItem.rightBarButtonItem = addButton
     }
     
-    // MARK: - Action
-    
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
@@ -166,6 +171,8 @@ extension ReminderViewController {
             }
         }
     }
+    
+    // MARK: - Action
     
     @objc func addButtonDidTap(sender: Any) {
         let nextVc = AddReminderViewController(collectionViewLayout: UICollectionViewFlowLayout())
@@ -186,7 +193,6 @@ extension ReminderViewController: ReminderCellDelegate {
     }
     
     func delete(cell: ReminderCell) {
-        cell.isEditing = false
         
         if let indexPath = collectionView?.indexPath(for: cell) {
             reminderData.deleteData(at: indexPath.row)

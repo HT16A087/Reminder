@@ -125,7 +125,6 @@ class ReminderData {
     func setupNotification() {
         
         let _reminders: [Notification] = makeDueDateArray()
-        
         for reminder in _reminders {
             let component = Calendar.current.dateComponents(in: NSTimeZone.local, from: reminder.duedate)
             
