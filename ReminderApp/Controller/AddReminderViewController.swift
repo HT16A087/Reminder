@@ -1,321 +1,163 @@
 //
-//  AddReminderViewController.swift
+//  AddReminaderViewController.swift
 //  ReminderApp
 //
-//  Created by admin on 2019/04/01.
+//  Created by admin on 2019/04/20.
 //  Copyright © 2019 admin. All rights reserved.
 //
 
 import UIKit
-import UserNotifications
 
-class AddReminderViewController: UIViewController {
+class AddReminderViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
-//    var text: String?
-//    var duedate: String?
+    var task: String?
+    var due: Date?
     
-    fileprivate var reminderData: ReminderData!
+    fileprivate let reminderData: ReminderData
     
-    fileprivate let headerLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Add a new reminder"
-        label.font = UIFont(name: "AvenirNext-Bold", size: 24)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    fileprivate let headerId = "headerId"
+    fileprivate let taskCellId = "taskCell"
+    fileprivate let remindCellId = "remindCell"
+    fileprivate let duedateCellId = "duedateCell"
+    fileprivate let padding: CGFloat = 16.0
     
-    fileprivate let box1: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white
-        view.layer.cornerRadius = 3.0
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
-        view.layer.shadowOpacity = 0.2
-        view.layer.shadowRadius = 4.0
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    fileprivate var hasAddingItem = false
     
-    fileprivate let box2: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white
-        view.layer.cornerRadius = 3.0
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
-        view.layer.shadowOpacity = 0.2
-        view.layer.shadowRadius = 4.0
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    fileprivate let box3: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor.white
-        view.layer.cornerRadius = 3.0
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
-        view.layer.shadowOpacity = 0.2
-        view.layer.shadowRadius = 4.0
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    fileprivate let remindTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "What do you want to get done?"
-        textField.clearButtonMode = .whileEditing
-        textField.borderStyle = .none
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    fileprivate let remindLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Remind Me"
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    fileprivate let remindSwitch: UISwitch = {
-        let _switch = UISwitch()
-        _switch.isOn = false
-        _switch.addTarget(self, action: #selector(remindSwitchDidTap(sender:)), for: .touchUpInside)
-        _switch.translatesAutoresizingMaskIntoConstraints = false
-        return _switch
-    }()
-    
-    fileprivate let duedateLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Due Date"
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 1
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    fileprivate let duedateButton: UIButton = {
-        let button = UIButton()
-        let now = Date()
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        button.setTitle(formatter.string(from: now), for: .normal)
-        button.setTitleColor(UIColor.lightGray, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
-        button.isEnabled = true
-        button.addTarget(self, action: #selector(duedateButtonDidTap(sender:)), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    fileprivate let duedatePicker: UIDatePicker = {
-        let picker = UIDatePicker()
-        picker.datePickerMode = .dateAndTime
-        picker.addTarget(self, action: #selector(didValueChangedDatePicker(sender:)), for: .valueChanged)
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        return picker
-    }()
-    
-    fileprivate let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-    
-    fileprivate let kbToolBar: UIToolbar = {
-        let toolBar = UIToolbar()
-        toolBar.barStyle = .default
-        toolBar.sizeToFit()
-        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil)
-        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(kbDoneButtonDidTap(sender:)))
-        toolBar.items = [ spacer, done ]
-        return toolBar
-    }()
-    
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        
-        view.backgroundColor = UIColor.white
-        
-        reminderData = ReminderData()
-        reminderData.loadData()
+    override init(collectionViewLayout layout: UICollectionViewLayout) {
+        self.reminderData = ReminderData()
+        self.reminderData.loadData()
+        super.init(collectionViewLayout: layout)
         
         setupNavigationItems()
-        setupViews()
         
-        remindTextField.inputAccessoryView = kbToolBar
+        setupCollectionViewLayout()
+        setupCollectionView()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - CollectionView
     
-    fileprivate func setupViews() {
-        view.addSubview(headerLabel)
-        view.addSubview(box1)
-        view.addSubview(box2)
-        
-        box1.addSubview(remindTextField)
-        box2.addSubview(remindLabel)
-        box2.addSubview(remindSwitch)
-        
-        headerLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        headerLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
-        
-        box1.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 17).isActive = true
-        box1.leftAnchor.constraint(equalTo: headerLabel.leftAnchor).isActive = true
-        box1.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16).isActive = true
-        box1.bottomAnchor.constraint(equalTo: box1.topAnchor, constant: 60).isActive = true
-        
-        box2.topAnchor.constraint(equalTo: box1.bottomAnchor, constant: 25).isActive = true
-        box2.leftAnchor.constraint(equalTo: headerLabel.leftAnchor).isActive = true
-        box2.rightAnchor.constraint(equalTo: box1.rightAnchor).isActive = true
-        box2.bottomAnchor.constraint(equalTo: box2.topAnchor, constant: 60).isActive = true
-        
-        remindTextField.topAnchor.constraint(equalTo: box1.topAnchor, constant: 16).isActive = true
-        remindTextField.leftAnchor.constraint(equalTo: box1.leftAnchor, constant: 16).isActive = true
-        remindTextField.rightAnchor.constraint(equalTo: box1.rightAnchor, constant: -16).isActive = true
-        remindTextField.bottomAnchor.constraint(equalTo: box1.bottomAnchor, constant: -16).isActive = true
-        
-        remindLabel.topAnchor.constraint(equalTo: box2.topAnchor, constant: 16).isActive = true
-        remindLabel.leftAnchor.constraint(equalTo: box2.leftAnchor, constant: 16).isActive = true
-        remindLabel.rightAnchor.constraint(equalTo: box2.rightAnchor, constant: -16).isActive = true
-        remindLabel.bottomAnchor.constraint(equalTo: box2.bottomAnchor, constant: -16).isActive = true
-        
-        remindSwitch.topAnchor.constraint(equalTo: remindLabel.topAnchor).isActive = true
-        remindSwitch.rightAnchor.constraint(equalTo: box2.rightAnchor, constant: -16).isActive = true
-        remindSwitch.bottomAnchor.constraint(equalTo: box2.bottomAnchor, constant: -16).isActive = true
+    fileprivate func setupCollectionViewLayout() {
+        if let layout = collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.minimumLineSpacing = 20
+            layout.sectionInset = .init(top: padding, left: padding, bottom: padding, right: padding)
+        }
     }
     
-    fileprivate func setupNavigationItems() {
+    fileprivate func setupCollectionView() {
+        collectionView.backgroundColor = UIColor.white
+        collectionView.isScrollEnabled = false
+        
+        collectionView.register(AddReminderHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerId)
+        collectionView.register(TaskCell.self, forCellWithReuseIdentifier: taskCellId)
+        collectionView.register(RemindCell.self, forCellWithReuseIdentifier: remindCellId)
+        collectionView.register(DueDateCell.self, forCellWithReuseIdentifier: duedateCellId)
+    }
+    
+    // MARK: - AddReminderHeaderView
+    
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as! AddReminderHeaderView
+        return headerView
+    }
+    
+    // MARK: - CollectionView DataSource
+    
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2 + (hasAddingItem ? 1 : 0)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let taskCell = collectionView.dequeueReusableCell(withReuseIdentifier: taskCellId, for: indexPath) as! TaskCell
+        let remindCell = collectionView.dequeueReusableCell(withReuseIdentifier: remindCellId, for: indexPath) as! RemindCell
+        remindCell.delegate = self
+        let duedateCell = collectionView.dequeueReusableCell(withReuseIdentifier: duedateCellId, for: indexPath) as! DueDateCell
+        
+        let itemNum = indexPath.row
+        if itemNum == 0 {
+            return taskCell
+        }
+        
+        if itemNum == 1 {
+            return remindCell
+        }
+        
+        return duedateCell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.width, height: 80)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: view.frame.width - 2 * padding, height: 65)
+    }
+}
+
+extension AddReminderViewController {
+    
+    // MARK: - NavigationItem
+    
+    private func setupNavigationItems() {
         setupRightNavItem()
     }
     
-    fileprivate func setupRightNavItem() {
+    private func setupRightNavItem() {
         let saveButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveButtonDidTap(sender:)))
         navigationItem.rightBarButtonItem = saveButton
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        remindTextField.resignFirstResponder()
-    }
-    
-    func indicateDueDateBox() {
-        view.addSubview(box3)
-        box3.addSubview(duedateLabel)
-        box3.addSubview(duedateButton)
-        
-        box3.topAnchor.constraint(equalTo: box2.bottomAnchor, constant: 20).isActive = true
-        box3.leftAnchor.constraint(equalTo: box2.leftAnchor).isActive = true
-        box3.rightAnchor.constraint(equalTo: box2.rightAnchor).isActive = true
-        box3.bottomAnchor.constraint(equalTo: box3.topAnchor, constant: 60).isActive = true
-        
-        duedateLabel.topAnchor.constraint(equalTo: box3.topAnchor, constant: 16).isActive = true
-        duedateLabel.leftAnchor.constraint(equalTo: box3.leftAnchor, constant: 16).isActive = true
-        duedateLabel.bottomAnchor.constraint(equalTo: box3.bottomAnchor, constant: -16).isActive = true
-        
-        duedateButton.topAnchor.constraint(equalTo: duedateLabel.topAnchor).isActive = true
-        duedateButton.rightAnchor.constraint(equalTo: box3.rightAnchor, constant: -16).isActive = true
-        duedateButton.bottomAnchor.constraint(equalTo: duedateLabel.bottomAnchor).isActive = true
-        
-        box3.alpha = 0.0
-        UIView.animate(withDuration: 0.3) {
-            self.box3.alpha = 1.0
-        }
-    }
-    
-    func hideDueDateBox() {
-        UIView.animate(withDuration: 0.3) {
-            self.box3.alpha = 0.0
-        }
-    }
-    
-    func resetDueDateButton() {
-        duedateButton.setTitleColor(UIColor.lightGray, for: .normal)
-        duedateButton.isEnabled = true
-        
-        UIView.animate(withDuration: 0.3) {
-            self.duedatePicker.alpha = 0.0
-            self.view.willRemoveSubview(self.duedatePicker)
-        }
-    }
-    
-    // MARK: - Notification
-    
-    func notificationConfirmation() {
-        let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound, .badge]) {
-            (granted, error) in
-            // エラー処理
-        }
-    }
-    
-    // MARK: - NavigationBarButtonItem Handling
+    // MARK: - Action
     
     @objc func saveButtonDidTap(sender: Any) {
-        if remindTextField.text != "" {
-            let text = remindTextField.text
-            let duedate = duedateButton.currentTitle
-            
-            print(duedate!)
-            
-            if remindSwitch.isOn == true {
-                reminderData.saveData(reminder: Reminder(text: text!, duedate: duedate!, check: false))
-            } else {
-                reminderData.saveData(reminder: Reminder(text: text!, duedate: "", check: false))
-            }
+        
+        // get data
+        var task: String = ""
+        if let taskCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TaskCell {
+            task = taskCell.getText()
+        }
+        
+//        var remindState: Bool = false
+//        if let remindCell = collectionView.cellForItem(at: IndexPath(item: 1, section: 0)) as? RemindCell {
+//            remindState = remindCell.getSwitchState()
+//        }
+        
+        var duedate: String = ""
+        if let duedateCell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as? DueDateCell {
+            duedate = duedateCell.getDate()
+        }
+        
+        // save item
+        if task != "" {
+            let reminder = Reminder(task: task, duedate: duedate)
+            reminderData.saveData(reminder: reminder)
+            reminderData.saveCheck(check: false)
         }
         
         navigationController?.popViewController(animated: true)
     }
+}
+
+// MARK: - ReminderCellDelegate
+
+extension AddReminderViewController: RemindeCellDelegate {
     
-    // MARK: - UISwitch Handling
-    
-    @objc func remindSwitchDidTap(sender: UISwitch) {
-        if sender.isOn == true {
-            indicateDueDateBox()
+    func changeCellDisplay() {
+        hasAddingItem = !hasAddingItem
+        
+        let indexPath = IndexPath(item: 2, section: 0)
+        
+        if hasAddingItem {
+            collectionView.insertItems(at: [indexPath])
         } else {
-            resetDueDateButton()
-            hideDueDateBox()
+            collectionView.deleteItems(at: [indexPath])
         }
-        
-        notificationConfirmation()
-    }
-    
-    // MARK: - DueDate Button And Picker Handling
-    
-    @objc func duedateButtonDidTap(sender: Any) {
-        remindTextField.resignFirstResponder()
-        
-        view.addSubview(duedatePicker)
-        duedatePicker.topAnchor.constraint(equalTo: box3.bottomAnchor, constant: 20).isActive = true
-        duedatePicker.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
-        duedatePicker.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -16).isActive = true
-        
-        duedateButton.setTitleColor(#colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1), for: .normal)
-        duedateButton.isEnabled = false
-        duedatePicker.alpha = 0.0
-        duedatePicker.frame.origin.y = box3.frame.maxY
-        
-        UIView.animate(withDuration: 0.3) {
-            self.duedatePicker.alpha = 1.0
-            self.duedatePicker.frame.origin.y += 50
-        }
-    }
-    
-    @objc func didValueChangedDatePicker(sender: UIDatePicker) {
-        let selectedDate = dateFormatter.string(from: sender.date)
-        duedateButton.setTitle(selectedDate, for: .normal)
-    }
-    
-    // MARK: - Keyboard Handling
-    
-    @objc func kbDoneButtonDidTap(sender: Any) {
-        remindTextField.resignFirstResponder()
     }
 }

@@ -2,23 +2,23 @@
 //  ReminderData.swift
 //  ReminderApp
 //
-//  Created by admin on 2019/04/01.
+//  Created by admin on 2019/04/20.
 //  Copyright © 2019 admin. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class ReminderData {
     
-    private let groupId = "group.jp.ac.osakac.cs.hisalab.ReminderApp"
-    private let groupKey = "reminder"
-    private let checkKey = "check"
+    private let remindersKey = "reminder"
+    private let checksKey = "check"
     
     private var reminders = [Reminder]()
+    private var checks = [Bool]()
     
     func loadData() {
-        let defaults = UserDefaults(suiteName: groupId)
-        let reminderDics = defaults?.object(forKey: groupKey) as? [[String: Any]]
+        let defaults = UserDefaults.standard
+        let reminderDics = defaults.object(forKey: remindersKey) as? [Dictionary<String, Any>]
         guard let r = reminderDics else { return }
         for dic in r {
             let reminder = Reminder(from: dic)
@@ -29,50 +29,55 @@ class ReminderData {
     func saveData(reminder: Reminder) {
         reminders.append(reminder)
         
-        var reminderDics = [[String: Any]]()
+        var reminderDics = [Dictionary<String, Any>]()
         for r in reminders {
-            let reminderDic: [String: Any] = ["text": r.text, "duedate": r.duedate, "check": r.check]
+            let reminderDic: Dictionary<String, Any> = ["task": r.task, "duedate": r.duedate]
             reminderDics.append(reminderDic)
         }
         
-        let defaults = UserDefaults(suiteName: groupId)
-        defaults?.set(reminderDics, forKey: groupKey)
+        let defaults = UserDefaults.standard
+        defaults.set(reminderDics, forKey: remindersKey)
+    }
+    
+    func loadCheck() {
+        let defaults = UserDefaults.standard
+        guard let checks = defaults.object(forKey: checksKey) as? [Bool] else { return }
+        self.checks = checks
+    }
+    
+    func saveCheck(check: Bool) {
+        checks.append(check)
+        
+        let defaults = UserDefaults.standard
+        defaults.set(checks, forKey: checksKey)
+    }
+    
+    func changeCheckState(at index: Int) {
+        if checks.count > index {
+            checks[index] = !checks[index]
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(checks, forKey: checksKey)
     }
     
     func deleteData(at index: Int) {
-        reminders.remove(at: index)
+        if reminders.count > index {
+            reminders.remove(at: index)
+        }
         
-        var reminderDics = [[String: Any]]()
+        var reminderDics = [Dictionary<String, Any>]()
         for r in reminders {
-            let reminderDic: [String: Any] = ["text": r.text, "duedate": r.duedate, "check": r.check]
+            let reminderDic: Dictionary<String, Any> = ["task": r.task, "duedate": r.duedate]
             reminderDics.append(reminderDic)
         }
         
-        let defaults = UserDefaults(suiteName: groupId)
-        defaults?.set(reminderDics, forKey: groupKey)
-    }
-    
-    func editData(reminder: Reminder, at index: Int) {
-        reminders[index] = reminder
-        
-        var reminderDics = [[String: Any]]()
-        for r in reminders {
-            let reminderDic: [String: Any] = ["text": r.text, "duedate": r.duedate, "check": r.check]
-            reminderDics.append(reminderDic)
-        }
-        
-        let defaults = UserDefaults(suiteName: groupId)
-        defaults?.set(reminderDics, forKey: groupKey)
+        let defaults = UserDefaults.standard
+        defaults.set(reminderDics, forKey: remindersKey)
     }
     
     func count() -> Int {
         return reminders.count
-    }
-    
-    func unCheckedCount() -> Int {
-        let filter = reminders.filter({$0.check == false})
-        let uncheckedCount = filter.count
-        return uncheckedCount
     }
     
     func data(at index: Int) -> Reminder? {
@@ -80,5 +85,12 @@ class ReminderData {
             return reminders[index]
         }
         return nil
+    }
+    
+    func checkData(at index: Int) -> Bool? {
+        if checks.count > index {
+            return checks[index]
+        }
+        return false
     }
 }

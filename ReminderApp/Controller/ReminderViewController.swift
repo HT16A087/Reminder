@@ -2,27 +2,25 @@
 //  ReminderViewController.swift
 //  ReminderApp
 //
-//  Created by admin on 2019/03/31.
+//  Created by admin on 2019/04/20.
 //  Copyright © 2019 admin. All rights reserved.
 //
 
 import UIKit
 import DZNEmptyDataSet
 
-class ReminderViewController: UICollectionViewController {
+class ReminderViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     fileprivate var reminderData: ReminderData!
     
+    fileprivate var headerView: ReminderHeaderView!
     fileprivate let headerId = "headerId"
     fileprivate let cellId = "cellId"
     fileprivate let padding: CGFloat = 16.0
     
-    fileprivate let naviImageView: UIImageView = {
+    fileprivate let titleImageView: UIImageView = {
         let imageView = UIImageView()
-        let image = UIImage(named: "timerImage")
-        let imageTemp = image?.withRenderingMode(.alwaysTemplate)
-        imageView.image = imageTemp
-        imageView.tintColor = UIColor.black
+        imageView.image = UIImage(named: "titleImage")
         return imageView
     }()
     
@@ -34,60 +32,20 @@ class ReminderViewController: UICollectionViewController {
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError("init(coder:) has not veen implemented")
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        collectionViewReloadData()
-        
-        updateRemindersCountNotification()
-        
-        setupNavigationItems()
-    }
-    
-    // MARK: - UINavigationBar
-    
-    fileprivate func setupNavigationItems() {
-        setupRemainingNavItem()
-        setupLeftNavItem()
-        setupRightNavItem()
-    }
-    
-    fileprivate func setupRemainingNavItem() {
-        navigationItem.titleView = naviImageView
-        
-        navigationController?.navigationBar.backgroundColor = .white
-        navigationController?.navigationBar.isTranslucent = false
-    }
-    
-    fileprivate func setupLeftNavItem() {
-        navigationItem.leftBarButtonItem = editButtonItem
-        if reminderData.count() == 0 {
-            navigationItem.leftBarButtonItem?.isEnabled = false
-        } else {
-            navigationItem.leftBarButtonItem?.isEnabled = true
-        }
-    }
-    
-    fileprivate func setupRightNavItem() {
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonDidTap(sender:)))
-        navigationItem.rightBarButtonItem = addButton
-    }
-    
-    // MARK: - UICollectionView
-    
+    // MARK: - CollectionView
     fileprivate func setupCollectionViewLayout() {
         if let layout = collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.minimumLineSpacing = 20
             layout.sectionInset = .init(top: padding, left: padding, bottom: padding, right: padding)
+            layout.minimumLineSpacing = 30
             layout.sectionHeadersPinToVisibleBounds = true
         }
     }
     
     fileprivate func setupCollectionView() {
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = UIColor.white
         
         collectionView.register(ReminderHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerId)
         collectionView.register(ReminderCell.self, forCellWithReuseIdentifier: cellId)
@@ -96,20 +54,16 @@ class ReminderViewController: UICollectionViewController {
         collectionView.emptyDataSetSource = self
     }
     
-    fileprivate func collectionViewReloadData() {
-        reminderData = ReminderData()
-        reminderData.loadData()
-        collectionView.reloadData()
-    }
-    
-    // MARK: - UICollectionReusableView
+    // MARK; - ReminderHeaderView
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as? ReminderHeaderView
-        return header!
+        headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as? ReminderHeaderView
+        headerView.reminderNum = reminderData.count()
+        return headerView
     }
+ 
     
-    // MARK: - UICollectionView DataSource
+    // MARK: - CollectionView DataSource
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -121,13 +75,23 @@ class ReminderViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ReminderCell
-        cell.dataSourceItem = reminderData.data(at: indexPath.row)
-        cell.isChecked = reminderData.data(at: indexPath.row)!.check
+        cell.dataSorceItem = reminderData.data(at: indexPath.row) 
+        cell.isChecked = reminderData.checkData(at: indexPath.row)!
         cell.delegate = self
         return cell
     }
     
-    // MARK: - UIScrollView
+    // MARK: - CollectionView DelegateFlowLayout
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.width, height: 80)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: view.frame.width - 2 * padding, height: 65)
+    }
+    
+    // MARK: - ScrollView
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let contentOffsetY = scrollView.contentOffset.y
@@ -136,18 +100,64 @@ class ReminderViewController: UICollectionViewController {
         }
     }
     
-    // MARK: - UINavigationBarItem
+    // MARK: - View
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        reminderData = ReminderData()
+        reminderData.loadData()
+        
+        setupNavigationItems()
+        collectionView.reloadData()
+    }
+}
+
+extension ReminderViewController {
+    
+    // MARK - NavigationItem
+    
+    private func setupNavigationItems() {
+        setupRemainingItems()
+        setupLeftNavItem()
+        setupRightNavItem()
+    }
+    
+    private func setupRemainingItems() {
+        navigationItem.titleView = titleImageView
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        
+        navigationController?.navigationBar.backgroundColor = UIColor.white
+        navigationController?.navigationBar.barTintColor = UIColor.white
+        navigationController?.navigationBar.isTranslucent = false
+    }
+    
+    private func setupLeftNavItem() {
+        navigationItem.leftBarButtonItem = editButtonItem
+        if reminderData.count() == 0 {
+            navigationItem.leftBarButtonItem?.isEnabled = false
+        } else {
+            navigationItem.leftBarButtonItem?.isEnabled = true
+        }
+    }
+    
+    private func setupRightNavItem() {
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonDidTap(sender:)))
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    // MARK: - Action
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-        // 利用不可に設定
-        collectionView.allowsSelection = !editing
+        
+        //collectionView.allowsSelection = !editing
         navigationItem.rightBarButtonItem?.isEnabled = !editing
+        
         if reminderData.count() == 0 {
             navigationItem.leftBarButtonItem?.isEnabled = false
         }
         
-        // 編集モードに変更
         if let indexPaths = collectionView?.indexPathsForVisibleItems {
             for indexPath in indexPaths {
                 if let cell = collectionView?.cellForItem(at: indexPath) as? ReminderCell {
@@ -157,35 +167,13 @@ class ReminderViewController: UICollectionViewController {
         }
     }
     
-    // MARK: - NSNotification
-    
-    func updateRemindersCountNotification() {
-        let center = NotificationCenter.default
-        center.post(name: .reminderCountLabelUpdate, object: nil)
-    }
-    
-    // MARK: - ButtonAction Handling
-    
     @objc func addButtonDidTap(sender: Any) {
-        let addVc = AddReminderViewController()
-        navigationController?.pushViewController(addVc, animated: true)
+        let nextVc = AddReminderViewController(collectionViewLayout: UICollectionViewFlowLayout())
+        navigationController?.pushViewController(nextVc, animated: true)
     }
 }
 
-// MARK: - UICollectionViewDelegateFlowLayout
-
-extension ReminderViewController: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 60)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width - 2 * padding, height: 60)
-    }
-}
-
-// MARK: - ReminderCell Delegate
+// MARK: - ReminderCellDelegate
 
 extension ReminderViewController: ReminderCellDelegate {
     
@@ -193,38 +181,35 @@ extension ReminderViewController: ReminderCellDelegate {
         cell.isChecked = !cell.isChecked
         
         if let indexPath = collectionView?.indexPath(for: cell) {
-            let text = reminderData.data(at: indexPath.row)?.text
-            let duedate = reminderData.data(at: indexPath.row)?.duedate
-            reminderData.editData(reminder: Reminder(text: text!, duedate: duedate!, check: cell.isChecked), at: indexPath.row)
+            reminderData.changeCheckState(at: indexPath.row)
         }
-        
-        updateRemindersCountNotification()
     }
     
     func delete(cell: ReminderCell) {
+        cell.isEditing = false
+        
         if let indexPath = collectionView?.indexPath(for: cell) {
             reminderData.deleteData(at: indexPath.row)
             collectionView?.deleteItems(at: [indexPath])
-        }
-        
-        if reminderData.count() == 0 {
-            UIView.animate(withDuration: 0.5) {
-                self.collectionView.reloadEmptyDataSet()
+            headerView.reminderNum = reminderData.count()
+            
+            if reminderData.count() == 0 {
+                collectionView.reloadEmptyDataSet()
             }
         }
-        
-        cell.isEditing = false
-        
-        updateRemindersCountNotification()
     }
 }
 
-// MARK: - DANEmpty DataSource
+// MARK: - DZNEmpty Delegate
+
+extension ReminderViewController: DZNEmptyDataSetDelegate {}
+
+// MARK: - DZNEmpty DataSource
 
 extension ReminderViewController: DZNEmptyDataSetSource {
     
-    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
-        return UIImage(named: "timerImage")
+    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage? {
+        return UIImage(named: "titleImage")
     }
     
     func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
@@ -232,7 +217,3 @@ extension ReminderViewController: DZNEmptyDataSetSource {
         return NSAttributedString(string: text, attributes: nil)
     }
 }
-
-// MARK: - DANEmpty DataSetDelegate
-
-extension ReminderViewController: DZNEmptyDataSetDelegate {}
