@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 class AddReminderViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
@@ -139,6 +140,16 @@ extension AddReminderViewController {
         
         navigationController?.popViewController(animated: true)
     }
+    
+    // MARK: - Notification
+    
+    func notificationConfirmation() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) {
+            (granted, error) in
+            // error
+        }
+    }
 }
 
 // MARK: - ReminderCellDelegate
@@ -155,5 +166,7 @@ extension AddReminderViewController: RemindeCellDelegate {
         } else {
             collectionView.deleteItems(at: [indexPath])
         }
+        
+        notificationConfirmation()
     }
 }
