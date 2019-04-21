@@ -21,7 +21,6 @@ class ReminderCell: UICollectionViewCell {
         didSet {
             guard let reminder = self.dataSorceItem as? Reminder else { return }
             taskLabel.text = reminder.task
-            print(reminder.duedate)
             if reminder.duedate != "" {
                 dueLabel.text = changeDateFormat(duedate: reminder.duedate)
             }

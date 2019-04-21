@@ -26,6 +26,7 @@ class AddReminderViewController: UICollectionViewController, UICollectionViewDel
     override init(collectionViewLayout layout: UICollectionViewLayout) {
         self.reminderData = ReminderData()
         self.reminderData.loadData()
+        self.reminderData.loadCheck()
         super.init(collectionViewLayout: layout)
         
         setupNavigationItems()
@@ -123,11 +124,6 @@ extension AddReminderViewController {
         if let taskCell = collectionView.cellForItem(at: IndexPath(item: 0, section: 0)) as? TaskCell {
             task = taskCell.getText()
         }
-        
-//        var remindState: Bool = false
-//        if let remindCell = collectionView.cellForItem(at: IndexPath(item: 1, section: 0)) as? RemindCell {
-//            remindState = remindCell.getSwitchState()
-//        }
         
         var duedate: String = ""
         if let duedateCell = collectionView.cellForItem(at: IndexPath(item: 2, section: 0)) as? DueDateCell {

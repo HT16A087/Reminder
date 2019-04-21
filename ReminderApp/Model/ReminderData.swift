@@ -16,6 +16,8 @@ class ReminderData {
     private var reminders = [Reminder]()
     private var checks = [Bool]()
     
+    // MARK: - Reminders
+    
     func loadData() {
         let defaults = UserDefaults.standard
         let reminderDics = defaults.object(forKey: remindersKey) as? [Dictionary<String, Any>]
@@ -39,10 +41,30 @@ class ReminderData {
         defaults.set(reminderDics, forKey: remindersKey)
     }
     
+    func deleteData(at index: Int) {
+        if reminders.count > index {
+            reminders.remove(at: index)
+        }
+        
+        var reminderDics = [Dictionary<String, Any>]()
+        for r in reminders {
+            let reminderDic: Dictionary<String, Any> = ["task": r.task, "duedate": r.duedate]
+            reminderDics.append(reminderDic)
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(reminderDics, forKey: remindersKey)
+    }
+    
+    // MARK: - Checks
+    
     func loadCheck() {
         let defaults = UserDefaults.standard
         guard let checks = defaults.object(forKey: checksKey) as? [Bool] else { return }
         self.checks = checks
+        
+        print("load")
+        print(checks)
     }
     
     func saveCheck(check: Bool) {
@@ -61,20 +83,16 @@ class ReminderData {
         defaults.set(checks, forKey: checksKey)
     }
     
-    func deleteData(at index: Int) {
-        if reminders.count > index {
-            reminders.remove(at: index)
-        }
-        
-        var reminderDics = [Dictionary<String, Any>]()
-        for r in reminders {
-            let reminderDic: Dictionary<String, Any> = ["task": r.task, "duedate": r.duedate]
-            reminderDics.append(reminderDic)
+    func deleteCheck(at index: Int) {
+        if checks.count > index {
+            checks.remove(at: index)
         }
         
         let defaults = UserDefaults.standard
-        defaults.set(reminderDics, forKey: remindersKey)
+        defaults.set(checks, forKey: checksKey)
     }
+    
+    // MARK: - Return Data
     
     func count() -> Int {
         return reminders.count

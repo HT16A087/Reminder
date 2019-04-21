@@ -54,7 +54,7 @@ class ReminderViewController: UICollectionViewController, UICollectionViewDelega
         collectionView.emptyDataSetSource = self
     }
     
-    // MARK; - ReminderHeaderView
+    // MARK: - HeaderView
     
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath) as? ReminderHeaderView
@@ -107,6 +107,7 @@ class ReminderViewController: UICollectionViewController, UICollectionViewDelega
         
         reminderData = ReminderData()
         reminderData.loadData()
+        reminderData.loadCheck()
         
         setupNavigationItems()
         collectionView.reloadData()
@@ -151,7 +152,6 @@ extension ReminderViewController {
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
-        //collectionView.allowsSelection = !editing
         navigationItem.rightBarButtonItem?.isEnabled = !editing
         
         if reminderData.count() == 0 {
@@ -190,6 +190,7 @@ extension ReminderViewController: ReminderCellDelegate {
         
         if let indexPath = collectionView?.indexPath(for: cell) {
             reminderData.deleteData(at: indexPath.row)
+            reminderData.deleteCheck(at: indexPath.row)
             collectionView?.deleteItems(at: [indexPath])
             headerView.reminderNum = reminderData.count()
             
